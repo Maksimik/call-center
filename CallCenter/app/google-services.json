@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "738460617438",
+    "firebase_url": "https://call-center-d4d0c.firebaseio.com",
+    "project_id": "call-center-d4d0c",
+    "storage_bucket": "call-center-d4d0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738460617438:android:99927324e26feb27",
+        "android_client_info": {
+          "package_name": "com.callcenter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738460617438-hldvfrtg53kfnl3h4oqgal9qrv52rrsc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNGZFYMBKI0u1j7PwbsltQjEzmk_EEkEI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
