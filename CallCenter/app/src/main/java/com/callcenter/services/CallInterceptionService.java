@@ -28,9 +28,8 @@ public class CallInterceptionService extends IntentService {
                 .setContentTitle("Incoming call")
                 .setContentText(intent.getStringExtra(Constants.KEY_PHONE_NUMBER))
                 .setSmallIcon(android.R.drawable.stat_notify_chat);
-        mNotificationManager.notify(
-                notifyID,
-                mBuilder.build());
+
+        mNotificationManager.notify(notifyID, mBuilder.build());
 
         return START_NOT_STICKY;
     }
