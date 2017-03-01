@@ -26,12 +26,13 @@ public class CallInterceptionService extends IntentService {
 
         final HttpClient httpClient = new HttpClient();
 
-        final SharedPreferences sPref = getSharedPreferences(Constants.PREF, Context.MODE_MULTI_PROCESS);
+        final SharedPreferences sPref = getSharedPreferences(Constants.PREF, Context.MODE_PRIVATE);
 
         final String authToken = sPref.getString(Constants.KEY_AUTH_TOKEN, "");
         if (authToken != "") {
             try {
                 final Map<String, String> header = new HashMap<>();
+
                 header.put("Accept", "application/json");
                 header.put("token_auth", authToken);
 

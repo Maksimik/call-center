@@ -50,12 +50,7 @@ public class HttpClient {
                 stringBuilder.append(line);
             }
             response = stringBuilder.toString();
-
             inputStream.close();
-
-            if (!isSuccess) {
-                throw new Exception(response);
-            }
 
         } finally {
             if (connection != null) {

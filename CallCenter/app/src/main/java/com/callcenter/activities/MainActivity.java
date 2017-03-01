@@ -22,6 +22,9 @@ import com.callcenter.R;
 import com.callcenter.constants.Constants;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -98,8 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean validateLogin() {
         if (inputLogin.getText().toString().trim().isEmpty()) {
-            inputLayoutLogin.setError(getString(R.string.err_msg_login));
-            requestFocus(inputLogin);
+            errorLogin();
             return false;
         } else {
             inputLayoutLogin.setErrorEnabled(false);
@@ -110,14 +112,23 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean validatePassword() {
         if (inputPassword.getText().toString().trim().isEmpty()) {
-            inputLayoutPassword.setError(getString(R.string.err_msg_password));
-            requestFocus(inputPassword);
+            errorPassword();
             return false;
         } else {
             inputLayoutPassword.setErrorEnabled(false);
         }
 
         return true;
+    }
+
+    private void errorLogin() {
+        inputLayoutLogin.setError(getString(R.string.err_msg_login));
+        requestFocus(inputLogin);
+    }
+
+    private void errorPassword() {
+        inputLayoutPassword.setError(getString(R.string.err_msg_password));
+        requestFocus(inputPassword);
     }
 
     private void requestFocus(final View view) {
@@ -134,13 +145,15 @@ public class MainActivity extends AppCompatActivity {
             final HttpClient httpClient = new HttpClient();
             String response = "";
             try {
-                final String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+//                final String refreshedToken = FirebaseInstanceId.getInstance().getToken();
 
                 final Map<String, String> header = new HashMap<>();
                 header.put("Accept", "application/json");
-                final String body = "{\"push_token\": \"" + refreshedToken + "\", \"device_model\": \"" + getDeviceName() + "\", " +
-                        "\"login\": \"" + login + "\", \"password\": \"" + password + "\"\"}";
+                header.put("Content-Type", "application/x-www-form-urlencoded");
+                header.put("clientId", "3");
+//              header.put("pushToken", refreshedToken);
 
+                final String body = "grant_type=password&username=" + login + "&password=" + password;
                 response = httpClient.post(Constants.URL_REGISTRATION, header, body);
 
             } catch (final Exception e) {
@@ -153,14 +166,33 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final String response) {
             super.onPostExecute(response);
+
             progressBar.setVisibility(View.INVISIBLE);
+
             if (response != null) {
+                try {
+                    final JSONObject dataJsonObj = new JSONObject(response);
+                    if (dataJsonObj.has("access_token")) {
 
-                linearLayout.setVisibility(View.INVISIBLE);
-                textView.setVisibility(View.VISIBLE);
+                        final String access_token = dataJsonObj.getString("access_token");
 
-                sPref.edit().putBoolean(Constants.KEY_REGISTRATION, true).apply();
-                sPref.edit().putString(Constants.KEY_AUTH_TOKEN, "auth_token").apply();
+                        linearLayout.setVisibility(View.INVISIBLE);
+                        textView.setVisibility(View.VISIBLE);
+
+                        sPref.edit().putBoolean(Constants.KEY_REGISTRATION, true).apply();
+                        sPref.edit().putString(Constants.KEY_AUTH_TOKEN, access_token).apply();
+
+                    } else if (dataJsonObj.has("error")) {
+                        errorPassword();
+                    } else {
+                        errorLogin();
+                    }
+
+                } catch (final JSONException e) {
+                    errorLogin();
+
+                    e.printStackTrace();
+                }
 
             } else {
 
