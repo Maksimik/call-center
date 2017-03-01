@@ -17,8 +17,4 @@ public class InstanceIDService extends FirebaseInstanceIdService {
         Log.i(TAG, "Refreshed token: " + refreshedToken);
 
     }
-
-    private void sendRegistrationToServer(final String token) {
-
-    }
 }
