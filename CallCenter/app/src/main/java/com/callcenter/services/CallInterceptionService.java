@@ -45,9 +45,7 @@ public class CallInterceptionService extends IntentService {
             } catch (final Exception e) {
                 e.printStackTrace();
             }
-
         }
-
     }
 
     public void onDestroy() {

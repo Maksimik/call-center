@@ -1,11 +1,13 @@
 <resources>
-    <string name="app_name">CallCenter</string>
-    <string name="err_msg_login">Enter your login</string>
-    <string name="err_msg_password">Enter the password</string>
-    <string name="login">Login</string>
-    <string name="password">Password</string>
+    <string name="app_name">Call-center</string>
+    <string name="err_msg_login">Введите логин</string>
+    <string name="err_msg_password">Введите пароль</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
     <string name="ok">OK</string>
-    <string name="the_phone_has_already_been_registered">The phone has already been registered</string>
-    <string name="no_internet_connection">No internet connection!</string>
-    <string name="failed_to_register">Failed to register</string>
+    <string name="you_are_already_registered">Вы уже прошли регистрацию</string>
+    <string name="no_internet_connection">Нет подключения к интернету!</string>
+    <string name="failed_to_register">Не удалось зарегистрироваться</string>
+    <string name="internet_connection_is_restored">Интернет соединение восстановлено</string>
+    <string name="lost_internet_connection">Интернет соединение потеряно</string>
 </resources>
