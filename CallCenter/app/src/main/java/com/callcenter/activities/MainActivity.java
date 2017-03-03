@@ -2,12 +2,14 @@ package com.callcenter.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
@@ -60,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
 
             linearLayout.setVisibility(View.INVISIBLE);
             textView.setVisibility(View.VISIBLE);
+        } else {
+            final int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
+            progressBar.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
         }
     }
 
@@ -215,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
                         final String access_token = dataJsonObj.getString("access_token");
 
                         linearLayout.setVisibility(View.INVISIBLE);
+                        textView.setText(R.string.registration_completed_successfully);
                         textView.setVisibility(View.VISIBLE);
 
                         sPref.edit().putBoolean(Constants.KEY_REGISTRATION, true).apply();

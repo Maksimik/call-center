@@ -10,4 +10,5 @@
     <string name="failed_to_register">Не удалось зарегистрироваться</string>
     <string name="internet_connection_is_restored">Интернет соединение восстановлено</string>
     <string name="lost_internet_connection">Интернет соединение потеряно</string>
+    <string name="registration_completed_successfully">Регистрация прошла успешно</string>
 </resources>
