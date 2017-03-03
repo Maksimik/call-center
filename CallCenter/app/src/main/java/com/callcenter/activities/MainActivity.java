@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean validateLogin() {
         if (inputLogin.getText().toString().trim().isEmpty()) {
-            errorLogin();
+            errorLogin(getString(R.string.err_msg_login));
             return false;
         } else {
             inputLayoutLogin.setErrorEnabled(false);
@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean validatePassword() {
         if (inputPassword.getText().toString().trim().isEmpty()) {
-            errorPassword();
+            errorPassword(getString(R.string.err_msg_password));
             return false;
         } else {
             inputLayoutPassword.setErrorEnabled(false);
@@ -158,13 +158,13 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void errorLogin() {
-        inputLayoutLogin.setError(getString(R.string.err_msg_login));
+    private void errorLogin(final String message) {
+        inputLayoutLogin.setError(message);
         requestFocus(inputLogin);
     }
 
-    private void errorPassword() {
-        inputLayoutPassword.setError(getString(R.string.err_msg_password));
+    private void errorPassword(final String message) {
+        inputLayoutPassword.setError(message);
         requestFocus(inputPassword);
     }
 
@@ -227,13 +227,13 @@ public class MainActivity extends AppCompatActivity {
                         sPref.edit().putString(Constants.KEY_AUTH_TOKEN, access_token).apply();
 
                     } else if (dataJsonObj.has("error")) {
-                        errorPassword();
+                        errorPassword(getString(R.string.incorrect_password));
                     } else {
-                        errorLogin();
+                        errorLogin(getString(R.string.incorrect_login));
                     }
 
                 } catch (final JSONException e) {
-                    errorLogin();
+                    errorLogin(getString(R.string.incorrect_login));
 
                     e.printStackTrace();
                 }
