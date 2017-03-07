@@ -29,21 +29,23 @@ public class CallInterceptionService extends IntentService {
         final SharedPreferences sPref = getSharedPreferences(Constants.PREF, Context.MODE_PRIVATE);
 
         final String authToken = sPref.getString(Constants.KEY_AUTH_TOKEN, "");
-        if (authToken != "") {
-            try {
-                final Map<String, String> header = new HashMap<>();
+        final String dispatcherLogin = sPref.getString(Constants.KEY_LOGIN, "");
+        final String clientId = sPref.getString(Constants.KEY_CLIENT_ID, "");
 
-                header.put("Accept", "application/json");
-                header.put("token_auth", authToken);
+        if (dispatcherLogin != "") {
+            if (authToken != "") {
+                try {
+                    final Map<String, String> header = new HashMap<>();
 
-                final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
+                    header.put("Accept", "application/json");
 
-                final String body = "{\"phone\": \"" + phone + "\"}";
+                    final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
 
-                httpClient.post(Constants.URL_PHONE_NUMBER, header, body);
+                    httpClient.post(Constants.URL_PHONE_NUMBER + clientId + "/" + dispatcherLogin + "/incoming/" + phone, null, null);
 
-            } catch (final Exception e) {
-                e.printStackTrace();
+                } catch (final Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -32,6 +32,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     private SharedPreferences sPref;
@@ -174,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class Task extends AsyncTask<Void, Void, String> {
+    class Task extends AsyncTask<Void, Void, String[]> {
 
         private final String userId;
 
@@ -184,20 +189,49 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(final Void... voids) {
+        protected String[] doInBackground(final Void... voids) {
 
             final HttpClient httpClient = new HttpClient();
-            String response = "";
+            final String[] response = {null, null};
+
             try {
+                final OkHttpClient client = new OkHttpClient();
 
-                final Map<String, String> header = new HashMap<>();
-                header.put("Accept", "application/json");
-                header.put("Content-Type", "application/x-www-form-urlencoded");
-                header.put("clientId", "3");
-//              header.put("pushToken", userId);
+                final FormBody body = new FormBody.Builder()
+                        .add("grant_type", "password")
+                        .add("username", login)
+                        .add("password", password)
+                        .build();
 
-                final String body = "grant_type=password&username=" + login + "&password=" + password;
-                response = httpClient.post(Constants.URL_REGISTRATION, header, body);
+                final Request request = new Request.Builder()
+                        .addHeader("Accept", "application/json")
+                        .addHeader("Content-Type", "application/x-www-form-urlencoded")
+                        .addHeader("pushToken", userId)
+                        .url(Constants.URL_REGISTRATION)
+                        .post(body)
+                        .build();
+                final Response r = client.newCall(request).execute();
+
+                response[0] = r.body().string();
+                final Map<String, String> header;
+
+                if (response[0] != null) {
+                    try {
+                        final JSONObject dataJsonObj = new JSONObject(response[0]);
+                        if (dataJsonObj.has("access_token")) {
+                            final String access_token = dataJsonObj.getString("access_token");
+
+                            header = new HashMap<>();
+                            header.put("Accept", "application/json");
+                            header.put("Authorization", "Bearer " + access_token);
+
+                            response[1] = httpClient.get(Constants.URL_USER, header);
+                        }
+
+                    } catch (final JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
 
             } catch (final Exception e) {
                 e.printStackTrace();
@@ -207,16 +241,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(final String response) {
+        protected void onPostExecute(final String[] response) {
             super.onPostExecute(response);
 
             progressBar.setVisibility(View.INVISIBLE);
 
-            if (response != null) {
+            if (response[1] != null) {
                 try {
-                    final JSONObject dataJsonObj = new JSONObject(response);
-                    if (dataJsonObj.has("access_token")) {
-
+                    JSONObject dataJsonObj = new JSONObject(response[1]);
+                    if (dataJsonObj.has("ClientId")) {
+                        final String clientId = dataJsonObj.getString("ClientId");
+                        dataJsonObj = new JSONObject(response[0]);
                         final String access_token = dataJsonObj.getString("access_token");
 
                         linearLayout.setVisibility(View.INVISIBLE);
@@ -224,7 +259,24 @@ public class MainActivity extends AppCompatActivity {
                         textView.setVisibility(View.VISIBLE);
 
                         sPref.edit().putBoolean(Constants.KEY_REGISTRATION, true).apply();
+                        sPref.edit().putString(Constants.KEY_CLIENT_ID, clientId).apply();
+                        sPref.edit().putString(Constants.KEY_LOGIN, login).apply();
                         sPref.edit().putString(Constants.KEY_AUTH_TOKEN, access_token).apply();
+
+                    } else {
+
+                        Toast.makeText(getApplicationContext(), R.string.failed_to_register, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (final JSONException e) {
+                    errorLogin(getString(R.string.incorrect_login));
+
+                    e.printStackTrace();
+                }
+
+            } else if (response[0] != null) {
+                try {
+                    final JSONObject dataJsonObj = new JSONObject(response[0]);
+                    if (dataJsonObj.has("access_token")) {
 
                     } else if (dataJsonObj.has("error")) {
                         errorPassword(getString(R.string.incorrect_password));
@@ -237,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
 
                     e.printStackTrace();
                 }
-
             } else {
 
                 Toast.makeText(getApplicationContext(), R.string.failed_to_register, Toast.LENGTH_SHORT).show();

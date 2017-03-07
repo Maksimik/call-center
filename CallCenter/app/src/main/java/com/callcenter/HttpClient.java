@@ -14,6 +14,10 @@ public class HttpClient {
         return doRequest(url, "GET", null, null);
     }
 
+    public String get(final String url, final Map<String, String> header) throws Exception {
+        return doRequest(url, "GET", header, null);
+    }
+
     public String post(final String url, final Map<String, String> header, final String body) throws Exception {
         return doRequest(url, "POST", header, body);
     }
