@@ -276,16 +276,12 @@ public class MainActivity extends AppCompatActivity {
             } else if (response[0] != null) {
                 try {
                     final JSONObject dataJsonObj = new JSONObject(response[0]);
-                    if (dataJsonObj.has("access_token")) {
+                    if (dataJsonObj.has("error_description")) {
 
-                    } else if (dataJsonObj.has("error")) {
-                        errorPassword(getString(R.string.incorrect_password));
-                    } else {
-                        errorLogin(getString(R.string.incorrect_login));
+                        Toast.makeText(getApplicationContext(), dataJsonObj.getString("error_description"), Toast.LENGTH_SHORT).show();
+
                     }
-
                 } catch (final JSONException e) {
-                    errorLogin(getString(R.string.incorrect_login));
 
                     e.printStackTrace();
                 }
