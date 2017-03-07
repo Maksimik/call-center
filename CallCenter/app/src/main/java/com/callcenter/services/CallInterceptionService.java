@@ -41,7 +41,7 @@ public class CallInterceptionService extends IntentService {
 
                     final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
 
-                    httpClient.post(Constants.URL_PHONE_NUMBER + clientId + "/" + dispatcherLogin + "/incoming/" + phone, null, null);
+                    httpClient.post(Constants.URL_PHONE_NUMBER + clientId + "/" + dispatcherLogin + "/incoming/" + phone.substring(1), null, null);
 
                 } catch (final Exception e) {
                     e.printStackTrace();

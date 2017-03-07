@@ -68,7 +68,7 @@ public class NotificationService extends com.onesignal.NotificationExtenderServi
     public void dialTheNumber(final String phone) {
         if (phone != null) {
 
-            final Intent newIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+            final Intent newIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+"+phone));
 
             newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
