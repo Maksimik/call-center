@@ -18,10 +18,6 @@ public class HttpClient {
         return doRequest(url, "GET", header, null);
     }
 
-    public String post(final String url, final Map<String, String> header, final String body) throws Exception {
-        return doRequest(url, "POST", header, body);
-    }
-
     private String doRequest(final String url, final String type, final Map<String, String> header, final String body) throws Exception {
         String response = null;
         HttpURLConnection connection = null;
@@ -41,6 +37,7 @@ public class HttpClient {
             final InputStream inputStream;
 
             final boolean isSuccess = connection.getResponseCode() >= 200 && connection.getResponseCode() < 300;
+
             if (isSuccess) {
                 inputStream = connection.getInputStream();
             } else {
@@ -55,6 +52,8 @@ public class HttpClient {
             }
             response = stringBuilder.toString();
             inputStream.close();
+
+        } catch (Exception e) {
 
         } finally {
             if (connection != null) {

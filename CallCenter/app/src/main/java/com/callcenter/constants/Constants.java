@@ -14,10 +14,12 @@ public final class Constants {
 
     public static final String KEY_CLIENT_ID = "client_id";
 
-    public static final String URL_REGISTRATION = "http://api.buscom.pro:80/api/v1/token";
+    private static final String HOST = "http://api.buscom.pro:80";
 
-    public static final String URL_USER = "http://api.buscom.pro:80/api/v1/users/me";
+    public static final String URL_REGISTRATION = HOST + "/api/v1/token";
 
-    public static final String URL_PHONE_NUMBER = "http://api.buscom.pro:80/api/v1/calls/";
+    public static final String URL_USER = HOST + "/api/v1/users/me";
+
+    public static final String URL_PHONE_NUMBER = HOST + "/api/v1/calls/";
 
 }

@@ -4,12 +4,12 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
-import com.callcenter.HttpClient;
 import com.callcenter.constants.Constants;
 
-import java.util.HashMap;
-import java.util.Map;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 public class CallInterceptionService extends IntentService {
 
@@ -24,28 +24,34 @@ public class CallInterceptionService extends IntentService {
     @Override
     protected void onHandleIntent(final Intent intent) {
 
-        final HttpClient httpClient = new HttpClient();
-
         final SharedPreferences sPref = getSharedPreferences(Constants.PREF, Context.MODE_PRIVATE);
 
         final String authToken = sPref.getString(Constants.KEY_AUTH_TOKEN, "");
         final String dispatcherLogin = sPref.getString(Constants.KEY_LOGIN, "");
         final String clientId = sPref.getString(Constants.KEY_CLIENT_ID, "");
-
         if (dispatcherLogin != "") {
             if (authToken != "") {
-                try {
-                    final Map<String, String> header = new HashMap<>();
+                new Thread() {
 
-                    header.put("Accept", "application/json");
+                    @Override
+                    public void run() {
+                        try {
+                            final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
 
-                    final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
+                            final OkHttpClient client = new OkHttpClient();
 
-                    httpClient.post(Constants.URL_PHONE_NUMBER + clientId + "/" + dispatcherLogin + "/incoming/" + phone.substring(1), null, null);
+                            final Request request = new Request.Builder()
+                                    .addHeader("Accept", "application/json")
+                                    .url(Constants.URL_PHONE_NUMBER + clientId + "/" + dispatcherLogin + "/incoming/" + phone.substring(1))
+                                    .build();
 
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                }
+                            Log.i("response", client.newCall(request).execute().toString());
+
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
             }
         }
     }
