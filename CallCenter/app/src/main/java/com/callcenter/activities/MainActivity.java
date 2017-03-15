@@ -2,13 +2,16 @@ package com.callcenter.activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -37,7 +40,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private SharedPreferences sPref;
     private EditText inputLogin, inputPassword;
@@ -46,11 +49,17 @@ public class MainActivity extends AppCompatActivity {
     private String login, password;
     private LinearLayout linearLayout;
     private TextView textView;
+    private final int PHONE_PERMISSION_REQUEST_CODE = 0;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission_group.PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions();
+        }
 
         sPref = getSharedPreferences(Constants.PREF, MODE_PRIVATE);
 
@@ -61,10 +70,8 @@ public class MainActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         linearLayout = (LinearLayout) findViewById(R.id.linerLayout);
         textView = (TextView) findViewById(R.id.textView);
-
         final boolean registration = sPref.getBoolean(Constants.KEY_REGISTRATION, false);
         if (registration) {
-
             linearLayout.setVisibility(View.INVISIBLE);
             textView.setVisibility(View.VISIBLE);
         } else {
@@ -296,6 +303,24 @@ public class MainActivity extends AppCompatActivity {
         final ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         final NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CALL_PHONE,
+                        android.Manifest.permission.READ_PHONE_STATE,
+                        android.Manifest.permission.PROCESS_OUTGOING_CALLS},
+                PHONE_PERMISSION_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        if (requestCode == PHONE_PERMISSION_REQUEST_CODE) {
+            if (permissions.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            } else {
+                requestPermissions();
+            }
+        }
     }
 
 }
