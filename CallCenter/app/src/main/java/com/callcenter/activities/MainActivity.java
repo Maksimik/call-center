@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private LinearLayout linearLayout;
     private TextView textView;
     private final int PHONE_PERMISSION_REQUEST_CODE = 0;
+    private Button btnSignOut;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -71,12 +73,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         linearLayout = (LinearLayout) findViewById(R.id.linerLayout);
         textView = (TextView) findViewById(R.id.textView);
         final boolean registration = sPref.getBoolean(Constants.KEY_REGISTRATION, false);
+        btnSignOut = (Button) findViewById(R.id.btnSignOut);
         if (registration) {
             linearLayout.setVisibility(View.INVISIBLE);
             textView.setVisibility(View.VISIBLE);
+            btnSignOut.setVisibility(View.VISIBLE);
+
         } else {
-            final int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
-            progressBar.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
+            initProgressBar();
         }
     }
 
@@ -146,6 +150,24 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         } else {
             Toast.makeText(getApplicationContext(), R.string.no_internet_connection, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void onClickSignOut(View view) {
+        sPref.edit().remove(Constants.KEY_REGISTRATION).apply();
+        sPref.edit().remove(Constants.KEY_AUTH_TOKEN).apply();
+        sPref.edit().remove(Constants.KEY_CLIENT_ID).apply();
+        sPref.edit().remove(Constants.KEY_LOGIN).apply();
+
+        linearLayout.setVisibility(View.VISIBLE);
+        textView.setVisibility(View.INVISIBLE);
+        btnSignOut.setVisibility(View.INVISIBLE);
+
+        initProgressBar();
+    }
+
+    private void initProgressBar() {
+        final int color = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimaryDark);
+        progressBar.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.SRC_ATOP);
     }
 
     private boolean validateLogin() {
@@ -264,6 +286,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         linearLayout.setVisibility(View.INVISIBLE);
                         textView.setText(R.string.registration_completed_successfully);
                         textView.setVisibility(View.VISIBLE);
+                        btnSignOut.setVisibility(View.VISIBLE);
 
                         sPref.edit().putBoolean(Constants.KEY_REGISTRATION, true).apply();
                         sPref.edit().putString(Constants.KEY_CLIENT_ID, clientId).apply();
@@ -275,7 +298,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         Toast.makeText(getApplicationContext(), R.string.failed_to_register, Toast.LENGTH_SHORT).show();
                     }
                 } catch (final JSONException e) {
-                    errorLogin(getString(R.string.incorrect_login));
 
                     e.printStackTrace();
                 }
