@@ -14,6 +14,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 import com.callcenter.HttpClient;
 import com.callcenter.R;
 import com.callcenter.constants.Constants;
+import com.callcenter.logs.Logging;
 import com.onesignal.OneSignal;
 
 import org.json.JSONException;
@@ -134,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         public void idsAvailable(final String userId, final String registrationId) {
 
                             if (userId != null) {
+                                Logging.logInFile("USER_ID: " + userId);
 
                                 login = inputLogin.getText().toString().trim();
                                 password = inputPassword.getText().toString().trim();
@@ -161,6 +164,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         linearLayout.setVisibility(View.VISIBLE);
         textView.setVisibility(View.INVISIBLE);
         btnSignOut.setVisibility(View.INVISIBLE);
+
+        inputLogin.setText("");
+        inputPassword.setText("");
 
         initProgressBar();
     }
@@ -208,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    class Task extends AsyncTask<Void, Void, String[]> {
+    private class Task extends AsyncTask<Void, Void, String[]> {
 
         private final String userId;
 
@@ -220,10 +226,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         @Override
         protected String[] doInBackground(final Void... voids) {
 
+            Logging.logInFile("REGISTRATION USER: [START]");
             final HttpClient httpClient = new HttpClient();
             final String[] response = {null, null};
 
             try {
+                Logging.logInFile("CHECKING USER [START]");
                 final OkHttpClient client = new OkHttpClient();
 
                 final FormBody body = new FormBody.Builder()
@@ -242,6 +250,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 final Response r = client.newCall(request).execute();
 
                 response[0] = r.body().string();
+
+                Logging.logInFile("REQUEST FROM SERVER (post method), URL: " + Constants.URL_REGISTRATION + ", RESPONSE: " + response[0]);
+
                 final Map<String, String> header;
 
                 if (response[0] != null) {
@@ -249,20 +260,29 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         final JSONObject dataJsonObj = new JSONObject(response[0]);
                         if (dataJsonObj.has("access_token")) {
                             final String access_token = dataJsonObj.getString("access_token");
+                            Logging.logInFile("CHECKING USER [END WITH SUCCESS]");
+                            Logging.logInFile("GETTING CLIENT_ID [START]");
 
                             header = new HashMap<>();
                             header.put("Accept", "application/json");
                             header.put("Authorization", "Bearer " + access_token);
 
                             response[1] = httpClient.get(Constants.URL_USER, header);
+
+                            Logging.logInFile("REQUEST FROM SERVER (get method), URL: " + Constants.URL_USER + ", RESPONSE: " + response[0]);
                         }
 
                     } catch (final JSONException e) {
+                        Logging.logInFile("GETTING CLIENT_ID [ERROR], error: " + e.toString());
+                        Logging.logInFile("CHECKING USER [END WITH ERROR]");
+                        Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
                         e.printStackTrace();
                     }
                 }
 
             } catch (final Exception e) {
+                Logging.logInFile("CHECKING USER [END WITH ERROR], error: " + e.toString());
+                Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
                 e.printStackTrace();
             }
 
@@ -293,11 +313,20 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         sPref.edit().putString(Constants.KEY_LOGIN, login).apply();
                         sPref.edit().putString(Constants.KEY_AUTH_TOKEN, access_token).apply();
 
+                        Logging.logInFile("GETTING CLIENT_ID [END WITH SUCCESS]");
+                        Logging.logInFile("REGISTRATION USER: [END WITH SUCCESS]");
+
                     } else {
 
                         Toast.makeText(getApplicationContext(), R.string.failed_to_register, Toast.LENGTH_SHORT).show();
+
+                        Logging.logInFile("GETTING CLIENT_ID [END WITH ERROR]");
+                        Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
                     }
                 } catch (final JSONException e) {
+
+                    Logging.logInFile("GETTING CLIENT_ID [END WITH ERROR], error: " + e.toString());
+                    Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
 
                     e.printStackTrace();
                 }
@@ -309,14 +338,20 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
                         Toast.makeText(getApplicationContext(), dataJsonObj.getString("error_description"), Toast.LENGTH_SHORT).show();
 
+                        Logging.logInFile("CHECKING USER [END WITH ERROR]");
+                        Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
                     }
                 } catch (final JSONException e) {
-
+                    Logging.logInFile("CHECKING USER [END WITH ERROR], error: " + e.toString());
+                    Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
                     e.printStackTrace();
                 }
             } else {
 
                 Toast.makeText(getApplicationContext(), R.string.failed_to_register, Toast.LENGTH_SHORT).show();
+                Logging.logInFile("CHECKING USER [END WITH ERROR]");
+                Logging.logInFile("REGISTRATION USER: [END WITH ERROR]");
+
             }
         }
     }

@@ -11,6 +11,7 @@ import android.os.PowerManager;
 import android.os.Vibrator;
 
 import com.callcenter.constants.Constants;
+import com.callcenter.logs.Logging;
 import com.onesignal.OSNotificationReceivedResult;
 
 public class NotificationService extends com.onesignal.NotificationExtenderService {
@@ -24,6 +25,9 @@ public class NotificationService extends com.onesignal.NotificationExtenderServi
         final boolean registration = sPref.getBoolean(Constants.KEY_REGISTRATION, false);
 
         if (registration) {
+
+            Logging.logInFile("PUSH NOTIFICATION : " + receivedResult.toString());
+
             final String phone = receivedResult.payload.body;
 
             final PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
@@ -68,7 +72,7 @@ public class NotificationService extends com.onesignal.NotificationExtenderServi
     public void dialTheNumber(final String phone) {
         if (phone != null) {
 
-            final Intent newIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+"+phone));
+            final Intent newIntent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + "+" + phone));
 
             newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
