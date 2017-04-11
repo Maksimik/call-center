@@ -14,7 +14,7 @@ public final class Constants {
 
     public static final String KEY_CLIENT_ID = "client_id";
 
-    private static final String HOST = "http://api.buscom.pro:80";
+    private static final String HOST = "http://eap.buscom.pro:80";
 
     public static final String URL_REGISTRATION = HOST + "/api/v1/token";
 
