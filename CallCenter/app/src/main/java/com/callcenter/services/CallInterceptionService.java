@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import com.callcenter.constants.Constants;
 import com.callcenter.logs.Logging;
@@ -29,37 +28,35 @@ public class CallInterceptionService extends IntentService {
 
 
         final String authToken = sPref.getString(Constants.KEY_AUTH_TOKEN, "");
-        final String dispatcherLogin = sPref.getString(Constants.KEY_LOGIN, "");
+        final String lineNember = sPref.getString(Constants.KEY_LINE_NUMBER, "");
         final String clientId = sPref.getString(Constants.KEY_CLIENT_ID, "");
-        if (dispatcherLogin != "") {
-            if (authToken != "") {
-                new Thread() {
 
-                    @Override
-                    public void run() {
-                        try {
-                            final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
+        if (lineNember != "" && authToken != "") {
+            new Thread() {
 
-                            Logging.logInFile("INCOMING CALL: " + phone);
-                            Logging.logInFile("REGISTRATION INCOMING CALL: [START]");
+                @Override
+                public void run() {
+                    try {
+                        final String phone = intent.getStringExtra(Constants.KEY_PHONE_NUMBER);
+                        final String url = Constants.URL_PHONE_NUMBER + clientId + "/" + lineNember + "/incoming/" + phone.substring(1);
+                        Logging.logInFile("INCOMING CALL: " + phone);
+                        Logging.logInFile("REGISTRATION INCOMING CALL: [START]");
 
-                            final OkHttpClient client = new OkHttpClient();
+                        final OkHttpClient client = new OkHttpClient();
 
-                            final Request request = new Request.Builder()
-                                    .addHeader("Accept", "application/json")
-                                    .url(Constants.URL_PHONE_NUMBER + clientId + "/" + dispatcherLogin + "/incoming/" + phone.substring(1))
-                                    .build();
+                        final Request request = new Request.Builder()
+                                .addHeader("Accept", "application/json")
+                                .url(url)
+                                .build();
+                        Logging.logInFile("REQUEST FROM SERVER (post method), URL: " + url + ", RESPONSE: " + client.newCall(request).execute().toString());
+                        Logging.logInFile("REGISTRATION INCOMING CALL: [END]");
 
-                            Logging.logInFile("REQUEST FROM SERVER (post method), URL: " + Constants.URL_USER + ", RESPONSE: " + client.newCall(request).execute().toString());
-                            Logging.logInFile("REGISTRATION INCOMING CALL: [END]");
-
-                        } catch (final Exception e) {
-                            Logging.logInFile("REGISTRATION INCOMING CALL: [END WITH ERROR], error; " + e.toString());
-                            e.printStackTrace();
-                        }
+                    } catch (final Exception e) {
+                        Logging.logInFile("REGISTRATION INCOMING CALL: [END WITH ERROR], error; " + e.toString());
+                        e.printStackTrace();
                     }
-                }.start();
-            }
+                }
+            }.start();
         }
     }
 

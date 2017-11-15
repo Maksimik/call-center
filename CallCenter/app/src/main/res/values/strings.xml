@@ -14,4 +14,5 @@
     <string name="incorrect_login">Неверный логин</string>
     <string name="incorrect_password">Неверный пароль</string>
     <string name="sign_out">Выход</string>
+    <string name="line_number">Номер линии</string>
 </resources>
